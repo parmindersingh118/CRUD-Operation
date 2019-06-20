@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript">
+function myFunction() {
+  document.getElementById("demo").innerHTML = "Paragraph changed.";
+}
+function SaveDetails() {
+     
+    var listName = "Training List";
+	var name = $("#name").val();
+   var mail = $("#mail").val();
+    var city = $("#city").val();
+     var pwd = $("#pwd").val();
+    CreateListItemWithDetails(listName, _spPageContextInfo.webAbsoluteUrl,name,mail,city,pwd, function () {
+        console.log("New Item has been created successfully.");
+ }, function () {
+     console.log("Ooops, an error occured. Please try again.");
+ });
+}
+function CreateListItemWithDetails(listName, webUrl,name,mail,city,pwd, success, failure) {
+    var itemType = GetItemTypeForListName(listName);
+    var item = ({
+        __metadata: { type: "SP.Data.Training_x0020_ListListItem"},
+        "Title": name,
+        "Mail_x002d_Id": mail,
+        "City": city
+	
+       
+    });
+
+    $.ajax({
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listName + "')/items",
+        type: "POST",
+        contentType: "application/json;odata=verbose",
+        data: JSON.stringify(item),
+        headers: {
+           "Accept": "application/json;odata=verbose",  
+            "Content-Type": "application/json;odata=verbose",  
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),  
+            "X-HTTP-Method": "POST" 
+        },
+        success: function (data) {
+           // success(data);
+		   alert("done!");
+		   $("#ID").val('')
+		   $("#pwd").val('')
+		   $("#name").val('')
+			$("#mail").val('')
+    		$("#city").val('')
+        },
+        error: function (data) {
+           // failure(data);
+		   alert("fail!");
+        }
+    });
+}
+function deleteListItem()
+{  
+var ID = $("#ID").val();
+    $.ajax  
+    ({  
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('Training List')/items("+ ID +")",  
+        type: "DELETE",  
+        headers:  
+        {  
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),  
+            "IF-MATCH": "*",  
+            "X-HTTP-Method": "DELETE"  
+        },  
+        success: function(data, status, xhr)  
+        {  
+            alert("Item Deleted")
+        },  
+        error: function(xhr, status, error)  
+        {  
+            alert("wrong")
+        }  
+    });  
+}  
+function getDetails()
+{ 
+var ID = $("#ID").val();
+    $.ajax({
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('Training List')/items("+ ID +")",   
+        type: "GET",
+        headers: {
+            "accept": "application/json;odata=verbose",
+        },
+        success: function (data) {
+            $("#pwd").val(data.d.OData__x0063_659)
+		   $("#name").val(data.d.Title)
+			$("#mail").val(data.d.Mail_x002d_Id)
+    		$("#city").val(data.d.City)
+        },
+        error: function (error) {
+            alert(JSON.stringify(error));
+        }
+    });
+}
+  
+function updateListItem()  
+{       var id = $("#ID").val();
+        var name = $("#name").val();
+        var mail = $("#mail").val();
+        var city = $("#city").val();
+        var pwd = $("#pwd").val();
+  $.ajax  
+    ({  
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('Training List')/items("+ id +")", // list item ID  
+        type: "POST",  
+        data: JSON.stringify 
+        ({  
+            __metadata:  
+            {  
+                type: "SP.Data.Training_x0020_ListListItem"  
+            },  
+            "Title": name,
+        "Mail_x002d_Id": mail,
+        "City": city, 
+        }),  
+        headers:  
+        {  
+            "Accept": "application/json;odata=verbose",  
+            "Content-Type": "application/json;odata=verbose",  
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),  
+            "IF-MATCH": "*",  
+            "X-HTTP-Method": "MERGE"  
+        },  
+        success: function(data, status, xhr)  
+        {  z
+           alert("update success")  
+        },  
+        error: function(xhr, status, error)  
+        {  
+            alert("Update fail") 
+        }  
+    }); 
+}
+
+
+   
+
+// Get List Item Type metadata
+function GetItemTypeForListName(name) {
+    return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
+}
+</script>
+</head>
+<body>
+<section>
+    <h2>Contact information</h2>
+   <p>
+	<label for="ID">
+	<span>ID:</span>
+	<input type="text" id="ID" name="ID">
+	</p>
+	<p>
+      <label for="name">
+        <span>Name: </span>
+        <strong><abbr title="required">*</abbr></strong>
+      </label>
+      <input type="text" id="name" name="username">
+    </p>
+    <p>
+      <label for="mail">
+        <span>E-mail: </span>
+        <strong><abbr title="required">*</abbr></strong>
+      </label>
+      <input type="email" id="mail" name="usermail"><br>
+	  
+	  <input type="radio" name="gender" value="male" >Male
+	  <input type="radio" name="gender" value="Female" checked> Female<br>
+	  <div>
+	  <label >City
+	  <!-- <span>City: </span> -->
+	  <select id="city">
+	   <option value="Delhi">Delhi</option>
+      <option value="Noida">Noida</option>
+      <option value="Ghaziabad">Ghaziabad</option>
+      <option value="Meerut">Meerut</option>
+	  
+      </select>
+	  </label>
+	  
+	  </div>
+</div>
+	  
+	  
+    </p>
+    <p>
+      <label for="pwd">
+        <span>Password: </span>
+        <strong><abbr title="required">*</abbr></strong>
+      </label>
+      <input type="password" id="pwd" name="password">
+	  
+    </p>
+	 <input type="button" onclick="SaveDetails()" value="Create"/>
+	 <input type="button" onClick="getDetails()" value="Read" />
+	 <input type="button" onclick="deleteListItem()" value="Delete"/>
+	 <input type="button" onclick="updateListItem()" value="Update"/>
+
+</section>
+</body>
+</html>
+
